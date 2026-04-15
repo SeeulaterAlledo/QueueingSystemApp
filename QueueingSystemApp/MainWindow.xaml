@@ -1,0 +1,220 @@
+﻿<Window x:Class="QueueingSystemApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Система массового обслуживания"
+        Height="1000" Width="1180"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F7FB">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#059669"/>
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#047857"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#DC2626"/>
+        <SolidColorBrush x:Key="CardBrush" Color="White"/>
+        <SolidColorBrush x:Key="BorderBrushCustom" Color="#D6DCE8"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#1F2937"/>
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#6B7280"/>
+        <SolidColorBrush x:Key="SoftBrush" Color="#ECFDF5"/>
+
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBrush}"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="14"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushCustom}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1.2"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="MinWidth" Value="150"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+        </Style>
+
+        <Style TargetType="DataGrid">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="AutoGenerateColumns" Value="True"/>
+            <Setter Property="HeadersVisibility" Value="All"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="All"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2.1*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Шапка -->
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}" Background="{StaticResource PrimaryBrush}">
+            <StackPanel>
+                <TextBlock Text="Система массового обслуживания"
+                           FontSize="26"
+                           FontWeight="Bold"
+                           Foreground="White"/>
+                <TextBlock Text="Одноканальная СМО без отказов"
+                           Margin="0,4,0,0"
+                           FontSize="15"
+                           Foreground="#D1FAE5"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Кнопки -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+            <WrapPanel>
+                <Button Style="{StaticResource PrimaryButtonStyle}" Content="Заполнить пример" Click="FillExample_Click"/>
+                <Button Style="{StaticResource PrimaryButtonStyle}" Content="Рассчитать" Click="Calculate_Click"/>
+                <Button Style="{StaticResource PrimaryButtonStyle}" Content="Экспорт в CSV" Click="ExportCsv_Click"/>
+                <Button Style="{StaticResource DangerButtonStyle}" Content="Очистить" Click="Clear_Click"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- Ввод -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.1*"/>
+                <ColumnDefinition Width="1.4*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Исходные данные" Style="{StaticResource SectionTitleStyle}"/>
+                    <TextBlock Text="Введите интенсивность поступления и обслуживания"
+                               Margin="0,0,0,10"
+                               Foreground="{StaticResource MutedTextBrush}"/>
+
+                    <TextBlock Text="λ — интенсивность поступления заявок" Style="{StaticResource LabelStyle}"/>
+                    <TextBox x:Name="LambdaTextBox"/>
+
+                    <TextBlock Text="μ — интенсивность обслуживания" Style="{StaticResource LabelStyle}" Margin="0,10,0,0"/>
+                    <TextBox x:Name="MuTextBox"/>
+
+                    <Border Background="{StaticResource SoftBrush}"
+                            CornerRadius="10"
+                            Padding="10"
+                            Margin="0,16,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Подсказка"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PrimaryDarkBrush}"/>
+                            <TextBlock Text="Для устойчивой системы должно выполняться условие: λ &lt; μ"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="Используемые формулы" Style="{StaticResource SectionTitleStyle}"/>
+                    <TextBlock Text="ρ = λ / μ" Margin="0,4,0,4" FontSize="15"/>
+                    <TextBlock Text="P0 = 1 - ρ" Margin="0,4,0,4" FontSize="15"/>
+                    <TextBlock Text="Lq = ρ² / (1 - ρ)" Margin="0,4,0,4" FontSize="15"/>
+                    <TextBlock Text="L = ρ / (1 - ρ)" Margin="0,4,0,4" FontSize="15"/>
+                    <TextBlock Text="Wq = Lq / λ" Margin="0,4,0,4" FontSize="15"/>
+                    <TextBlock Text="W = L / λ" Margin="0,4,0,4" FontSize="15"/>
+
+                    <TextBlock Text="Все показатели рассчитываются для модели M/M/1."
+                               Margin="0,14,0,0"
+                               Foreground="{StaticResource MutedTextBrush}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Результат -->
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.15*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                <DockPanel>
+                    <TextBlock Text="Результаты расчета" Style="{StaticResource SectionTitleStyle}" DockPanel.Dock="Top"/>
+                    <DataGrid x:Name="ResultDataGrid"/>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource CardStyle}">
+                <DockPanel>
+                    <TextBlock Text="Комментарий к расчету" Style="{StaticResource SectionTitleStyle}" DockPanel.Dock="Top"/>
+
+                    <Border Background="{StaticResource SoftBrush}"
+                            CornerRadius="10"
+                            Padding="10"
+                            Margin="0,0,0,10"
+                            DockPanel.Dock="Top">
+                        <TextBlock x:Name="SummaryTextBlock"
+                                   Text="Итог: "
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryDarkBrush}"/>
+                    </Border>
+
+                    <TextBox x:Name="LogTextBox"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto"
+                             IsReadOnly="True"
+                             Height="250"/>
+                </DockPanel>
+            </Border>
+        </Grid>
+
+        <!-- Низ -->
+        <Border Grid.Row="4" Style="{StaticResource CardStyle}" Background="#F8FAFC">
+            <TextBlock Foreground="{StaticResource MutedTextBrush}"
+                       FontSize="13"
+                       Text="Примечание: если λ ≥ μ, очередь будет неограниченно расти, и система считается неустойчивой."/>
+        </Border>
+    </Grid>
+</Window>
